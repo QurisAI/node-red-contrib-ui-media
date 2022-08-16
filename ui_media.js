@@ -28,24 +28,11 @@ module.exports = function (RED) {
 
     var pathDir, pathUpload, httpRoot;
 
-    /**
-     * Checks if projects are enabled in the settings and create a path for it if
-     * it is. In case projects are disabled, the old path to the lib is created
-     */
     function updateDirs() {
-        let editorTheme = RED.settings.get("editorTheme");
-        let projects = RED.settings.get("projects");
         let userDir = RED.settings.userDir;
 
-        if (editorTheme && projects && editorTheme.projects && editorTheme.projects.enabled && projects.activeProject) {
-            // create the paths
-            pathDir = path.resolve(userDir, "projects", String(projects.activeProject), "ui-media", "lib");
-            pathUpload = path.resolve(userDir, "projects", String(projects.activeProject), "ui-media", "upload");
-        } else {
-            // create paths without the projects directory
-            pathDir = path.resolve(userDir, "lib", "ui-media", "lib");
-            pathUpload = path.resolve(userDir, "lib", "ui-media", "upload");
-        }
+        pathDir = path.resolve(userDir, "lib", "ui-media", "lib");
+        pathUpload = path.resolve(userDir, "lib", "ui-media", "upload");
 
         httpRoot = RED.settings.get('httpAdminRoot') || RED.settings.get('httpRoot') || '/';
 
@@ -62,18 +49,7 @@ module.exports = function (RED) {
         });
     }
 
-    // initialize directories with current project settings
     updateDirs();
-    // Subscribe to a project change
-    if (RED.events) {
-        RED.events.on('runtime-event', evt => {
-            if (evt && evt.id === 'project-update' && evt.payload.action == 'loaded') {
-                // Update directories when loading a project only
-                updateDirs();
-            }
-        })
-    }
-
 
     ///------> API
 
@@ -276,7 +252,7 @@ module.exports = function (RED) {
             try {
                 res.sendFile(pathImage);
             } catch (e) {
-                /* handles errors of sendFile "gracefully" instead of 
+                /* handles errors of sendFile "gracefully" instead of
                 potentially crashing node-red */
                 res.status(500).json(e).end();
             }
@@ -376,8 +352,8 @@ module.exports = function (RED) {
     var ui = undefined;
 
     /**
-     * 
-     * @param {object} config 
+     *
+     * @param {object} config
      */
     function ImageNode(config) {
 
@@ -577,8 +553,8 @@ module.exports = function (RED) {
                     });
                 </script>
 
-                <video id="${video_name}" 
-                    src="${path}" 
+                <video id="${video_name}"
+                    src="${path}"
                     style="width: 100%; height: auto; max-height: 98%; position: relative; top: 50%; transform: translateY(-50%);"
                     ${controls_string} ${loop_string} ${onstart_string} ${muted_string}>
                 </video>`;
